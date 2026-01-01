@@ -4,6 +4,7 @@ import re
 import os
 import time
 import random
+import subprocess
 from preferences import prefs
 
 WX_PUSHER_APP_TOKEN = os.environ.get("WX_PUSHER_APP_TOKEN", "")
