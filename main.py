@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from preferences import prefs
 
 prefs.put("cs", prefs.getTime())
-IP_LIST = set()
+myset = set()
 accounts_list = {}
 
 headers = {
@@ -49,12 +49,12 @@ def lo():
                 if ":" not in ip or not ip: continue
                 newIp, newPort = ip.split(':', 1)
                 if not validate_ip_port(newIp, newPort): continue
-                IP_LIST.add(ip)
+                myset.add(ip)
     except Exception as e:
         pass
     successful_proxies = []
     with ThreadPoolExecutor(max_workers=30) as executor:
-        futures = [executor.submit(verify, proxy) for proxy in IP_LIST]
+        futures = [executor.submit(verify, proxy) for proxy in myset]
         for future in as_completed(futures):
             proxy, is_valid, requestTime = future.result()
             if not is_valid:
@@ -63,7 +63,7 @@ def lo():
     print("ip响应时间:")
     for proxy, req_time in successful_proxies:
         print(f"{req_time}ms")
-        IP_LIST.add(proxy)
+        myset.add(proxy)
 
 def checkIn(user, pwd, ip):
     req = requests.session()
@@ -116,7 +116,7 @@ def checkIn(user, pwd, ip):
                         return True
     except Exception as e:
         print(f"异常{str(e)}")
-        IP_LIST.remove(ip)
+        myset.remove(ip)
     return False
 
 def loginhash(data):
@@ -144,7 +144,7 @@ def start():
     keys = list(accounts_list.keys())
     total = len(keys)
     for i, username in enumerate(keys):
-        for proxy in IP_LIST:
+        for proxy in myset:
             try:
                 if checkIn(username, accounts_list[username], proxy): break
             except Exception as e:
@@ -171,8 +171,8 @@ for duo in ACCOUNTS.split(","):
         accounts_list[username] = password
     elif YiQianDao:
         print(username, "今日已签, 跳过签到")
-IP_LIST.update([ip for ip in IPS.split("\n") if ip.strip()])
+myset.update([ip for ip in IPS.split("\n") if ip.strip()])
 if accounts_list:
     lo()
-if IP_LIST:
+if myset:
     start()
