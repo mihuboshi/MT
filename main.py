@@ -43,7 +43,7 @@ def verify(proxy):
 
 def lo():
     try:
-        with open("ips.txt", "r", encoding="utf-8") as f:
+        with open("src/ips.txt", "r", encoding="utf-8") as f:
             for line in f:
                 ip = line.strip()
                 if ":" not in ip or not ip: continue
