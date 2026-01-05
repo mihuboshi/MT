@@ -1,8 +1,6 @@
 name: 保存最后更新时间
 
 on:
-  repository:
-    types: [created]
   push:
     branches:
       - main
