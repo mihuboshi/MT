@@ -21,7 +21,7 @@ jobs:
         run: |
           git remote add upstream https://github.com/klaas8/MT.git || true
           git fetch upstream
-          git reset --hard upstream/main
+          #git reset --hard upstream/main
           git checkout upstream/main -- src/ README.md logger.py main.py preferences.py requirements.txt verify.py
           git add -A
           git commit -m "Sync code from upstream" || true
