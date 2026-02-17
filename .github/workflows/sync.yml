@@ -24,7 +24,7 @@ jobs:
           git fetch upstream
           
           # 定义要排除的文件（根据需要修改）
-          EXCLUDE_FILES=("file1.txt" "file2.json" "config/local.yml")
+          EXCLUDE_FILES=("prefs.sqlite")
           
           # 保存当前排除文件的状态
           for file in "${EXCLUDE_FILES[@]}"; do
