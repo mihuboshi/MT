@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   sync:
-    #if: github.repository != 'klaas8/MT'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
