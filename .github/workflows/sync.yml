@@ -21,8 +21,15 @@ jobs:
         run: |
           git remote add upstream https://github.com/klaas8/MT.git || true
           git fetch upstream
-          #git reset --hard upstream/main
-          git checkout upstream/main -- src/ README.md logger.py main.py preferences.py requirements.txt verify.py
+          git reset --hard upstream/main
+          LAST_COMMIT_WITH_PREFS=$(git log --oneline --pretty=format:"%H" -- prefs.sqlite 2>/dev/null | head -1)
+          if [ ! -z "$LAST_COMMIT_WITH_PREFS" ]; then
+            echo "Found prefs.sqlite in commit: $LAST_COMMIT_WITH_PREFS"
+            git checkout $LAST_COMMIT_WITH_PREFS -- prefs.sqlite
+            echo "Successfully 从历史记录中恢复preferences.sqlite"
+          else
+            echo "prefs.sqlite 在存储库历史记录中找不到"
+          fi
           git add -A
-          git commit -m "Sync code from upstream" || true
+          git commit -m "Sync from upstream (restore prefs.sqlite from history)" || true
           git push origin main --force
