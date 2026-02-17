@@ -20,7 +20,7 @@ jobs:
 
     - name: Enable Sync Workflow
       run: |
-        gh workflow enable Sync.yml
+        gh workflow enable sync.yml
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
