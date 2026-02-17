@@ -19,26 +19,21 @@ jobs:
       - name: Sync with precise exclude
         continue-on-error: true
         run: |
-          # 添加上游仓库
           git remote add upstream https://github.com/klaas8/MT.git || true
           git fetch upstream
-          
-          # 定义要排除的文件（根据需要修改）
+          # 排除指定文件不被覆盖
           EXCLUDE_FILES=("prefs.sqlite")
-          
-          # 保存当前排除文件的状态
           for file in "${EXCLUDE_FILES[@]}"; do
             if [ -f "$file" ]; then
               mkdir -p .tmp-exclude
               cp "$file" ".tmp-exclude/$(echo "$file" | tr '/' '_')"
             fi
           done
-          
-          # 使用read-tree完全替换工作目录（但保留索引）
+          # 强制替换
+          # git reset --hard upstream/main
+          # 替换，但保留索引
           git read-tree -um HEAD
           git read-tree -um upstream/main
-          
-          # 恢复排除的文件
           for file in "${EXCLUDE_FILES[@]}"; do
             backup_file=".tmp-exclude/$(echo "$file" | tr '/' '_')"
             if [ -f "$backup_file" ]; then
@@ -46,13 +41,8 @@ jobs:
               git add "$file"
             fi
           done
-          
-          # 清理临时文件
           rm -rf .tmp-exclude
-          
           # 提交更改
           git -c user.name="GitHub Actions" -c user.email="actions@github.com" \
             commit -m "Sync with upstream, exclude specified files" || true
-          
-          # 推送到origin
-          git push origin main
+          git push origin main --force
