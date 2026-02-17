@@ -14,22 +14,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # 必须获取完整历史记录
 
-      - name: Sync
+      - name: Sync and Restore in Stages
         continue-on-error: true
         run: |
+          # 1. 添加上游仓库（修复了缺失的URL）
           git remote add upstream https://github.com/klaas8/MT.git || true
           git fetch upstream
+          
+          # 2. 执行重置同步
           git reset --hard upstream/main
+          
+          # 3. 第一次推送：同步代码更新
+          git push origin main --force
+          echo "First push: code synced"
+          
+          # 4. 从历史记录恢复 prefs.sqlite
+          # 此时可以访问完整的历史记录
           LAST_COMMIT_WITH_PREFS=$(git log --oneline --pretty=format:"%H" -- prefs.sqlite 2>/dev/null | head -1)
+          
           if [ ! -z "$LAST_COMMIT_WITH_PREFS" ]; then
             echo "Found prefs.sqlite in commit: $LAST_COMMIT_WITH_PREFS"
             git checkout $LAST_COMMIT_WITH_PREFS -- prefs.sqlite
-            echo "Successfully 从历史记录中恢复preferences.sqlite"
+            echo "Successfully restored prefs.sqlite from history"
           else
-            echo "prefs.sqlite 在存储库历史记录中找不到"
+            echo "prefs.sqlite not found in repository history"
           fi
+          
+          # 5. 第二次推送：恢复配置文件
           git add -A
-          git commit -m "Sync from upstream (restore prefs.sqlite from history)" || true
-          git push origin main --force
+          git commit -m "Restore prefs.sqlite from history" || true
+          git push origin main
+          echo "Second push: prefs.sqlite restored"
