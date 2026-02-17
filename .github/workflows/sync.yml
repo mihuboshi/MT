@@ -16,31 +16,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sync from upstream (Overwrite except prefs.sqlite)
+      - name: Sync
         continue-on-error: true
         run: |
-          # 1. 添加上游仓库
           git remote add upstream https://github.com/klaas8/MT.git || true
           git fetch upstream
-
-          # 2. 创建一个临时分支指向上游
-          git checkout -b temp-sync upstream/main
-
-          # 3. 从临时分支检出所有文件到当前工作区（强制覆盖）
-          # 但排除 prefs.sqlite
-          # rsync 方式：同步所有文件，但跳过 prefs.sqlite
-          # 如果没有 rsync，可以使用 git checkout 配合排除列表
-          # 这里使用 git checkout 的排除功能
-          git checkout temp-sync -- .
-          # 但 git checkout 没有直接排除选项，所以我们需要手动“撤销”对 prefs.sqlite 的更改
-          
-          # 4. 从原始分支（同步前）恢复 prefs.sqlite
-          git checkout origin/main -- prefs.sqlite 2>/dev/null || echo "prefs.sqlite not found in origin, skipping"
-
-      - name: Commit and push changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Sync from upstream (exclude prefs.sqlite)" || echo "No changes to commit"
+          #git reset --hard upstream/main
+          git checkout upstream/main
           git push origin main --force
